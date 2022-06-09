@@ -37,3 +37,11 @@ form {
   width: 80%;
   margin: auto;
 }
+
+.categories-list li {
+  cursor: pointer;
+}
+
+.pagination-menu {
+  cursor: pointer;
+}
