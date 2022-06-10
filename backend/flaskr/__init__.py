@@ -1,7 +1,4 @@
-import json
-import os
 from flask import Flask, request, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from sqlalchemy.sql.functions import random
 
@@ -26,7 +23,6 @@ def create_app(test_config=None):
     app = Flask(__name__)
     setup_db(app)
     CORS(app, resources={r"/api/*": {'origins': '*'}})
-    # CORS(app)
 
     @app.after_request
     def after_request(response):
