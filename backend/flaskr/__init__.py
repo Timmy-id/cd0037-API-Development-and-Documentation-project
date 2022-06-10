@@ -3,7 +3,7 @@ import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-import random
+from sqlalchemy.sql.functions import random
 
 from models import setup_db, Question, Category, db
 
@@ -153,6 +153,8 @@ def create_app(test_config=None):
     @ app.route('/categories/<int:category_id>/questions')
     def get_questions_per_category(category_id):
         try:
+            if not category_id:
+                abort(404)
             questions = Question.query.filter(
                 Question.category == category_id).all()
             category = Category.query.get(category_id)
@@ -190,12 +192,13 @@ def create_app(test_config=None):
 
             if quiz_category:
                 questions = Question.query.filter_by(category=quiz_category).filter(
-                    ~Question.id.in_(previous_questions)).all()
+                    ~Question.id.in_(previous_questions)).order_by(random()).all()
             else:
                 questions = Question.query.filter(
-                    ~Question.id.in_(previous_questions)).all()
+                    ~Question.id.in_(previous_questions)).order_by(random()).all()
             if len(questions) > 0:
-                question = random.choice(questions).format()
+                for single_question in questions:
+                    question = single_question.format()
             else:
                 question = None
             return jsonify({
@@ -207,7 +210,7 @@ def create_app(test_config=None):
 
     @app.errorhandler(404)
     def not_found(error):
-        return({
+        return jsonify({
             "success": False,
             "error": 404,
             "message": "resource not found"
@@ -215,7 +218,7 @@ def create_app(test_config=None):
 
     @app.errorhandler(422)
     def unprocessable(error):
-        return({
+        return jsonify({
             "success": False,
             "error": 422,
             "message": "unprocessable"
@@ -223,7 +226,7 @@ def create_app(test_config=None):
 
     @app.errorhandler(400)
     def bad_request(error):
-        return({
+        return jsonify({
             "success": False,
             "error": 400,
             "message": "bad request"
@@ -231,7 +234,7 @@ def create_app(test_config=None):
 
     @app.errorhandler(405)
     def wrong_request(error):
-        return({
+        return jsonify({
             "success": False,
             "error": 405,
             "message": "method not allowed"
@@ -239,7 +242,7 @@ def create_app(test_config=None):
 
     @app.errorhandler(500)
     def server_error(error):
-        return({
+        return jsonify({
             "success": False,
             "error": 500,
             "message": "internal server error"

@@ -50,7 +50,7 @@ class TriviaTestCase(unittest.TestCase):
 
 
     def test_get_paginated_questions(self):
-        res = self.client().get("/questions")
+        res = self.client().get("/questions?page=1")
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -95,7 +95,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["category"])
 
     def test_400_if_category_body_not_correct(self):
-        res = self.client().post("/categories", json={})
+        res = self.client().post("/categories")
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
@@ -141,14 +141,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "method not allowed")
     
     def test_delete_question(self):
-        res = self.client().delete("/questions/31")
+        res = self.client().delete("/questions/9")
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 31).one_or_none()
+        question = Question.query.filter(Question.id == 9).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
-        self.assertEqual(data["deleted"], 31)
+        self.assertEqual(data["deleted"], 9)
         self.assertEqual(question, None)
     
     def test_422_if_question_does_not_exist(self):
@@ -168,8 +168,8 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
 
-    def test_400_if_no_data_is_passes(self):
-        res = self.client().post("/quizzes", json={})
+    def test_400_if_no_data_is_passed(self):
+        res = self.client().post("/quizzes")
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
